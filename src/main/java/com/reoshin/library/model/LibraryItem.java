@@ -23,18 +23,21 @@ public class LibraryItem implements Loanable {
     // EFFECTS: change availability to false if it is available,
     //          throws ItemNotAvailable if it is not available
     public void loanItem() throws ItemNotAvailable {
-
+        if (this.available == false) {
+            throw new ItemNotAvailable();
+        }
+        this.available = false;
     }
 
     public String getTitle() {
-        return null;
+        return this.title;
     }
 
     public String getID() {
-        return null;
+        return this.ID;
     }
 
     public boolean isAvailable() {
-        return false;
+        return this.available;
     }
 }

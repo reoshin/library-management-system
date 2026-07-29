@@ -19,4 +19,15 @@ public class LibraryItemTest {
         assertEquals("Book1", libItem1.getTitle());
         assertEquals("1111", libItem1.getID());
     }
+
+    @Test
+    public void LibraryItemLoanTest() {
+        assertTrue(libItem1.isAvailable());
+        try {
+            libItem1.loanItem();
+        } catch (Exception e) {
+            fail("No exception expected");
+        }
+        assertFalse(libItem1.isAvailable());
+    }
 }
