@@ -11,7 +11,7 @@ public class LibraryItemTest {
     
     @BeforeEach
     public void setUp() {
-        libItem1 = new LibraryItem("Book1", "1111");
+        libItem1 = new LibraryItem("Book1", "1111", "Ben", Category.BIOGRAPHY);
     }
 
     @Test
@@ -29,5 +29,24 @@ public class LibraryItemTest {
             fail("No exception expected");
         }
         assertFalse(libItem1.isAvailable());
+    }
+
+    @Test
+    public void LibraryItemReturnTest() {
+        try {
+            libItem1.loanItem();
+            assertFalse(libItem1.isAvailable());
+            libItem1.returnItem();
+            assertTrue(libItem1.isAvailable());
+        } catch (Exception e) {
+            fail("no exception expected");
+        }
+
+        try {
+            libItem1.returnItem();
+        } catch (Exception e) {
+            // expected
+        }
+        assertTrue(libItem1.isAvailable());
     }
 }
