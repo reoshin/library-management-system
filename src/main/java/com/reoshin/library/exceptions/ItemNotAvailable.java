@@ -1,4 +1,4 @@
 package com.reoshin.library.exceptions;
 
-public class ItemNotAvailable extends Exception {
+public class ItemNotAvailable extends RuntimeException {
 }
