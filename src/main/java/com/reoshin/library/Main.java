@@ -1,7 +1,9 @@
 package com.reoshin.library;
 
+import com.reoshin.library.ui.LibraryLegacyUI;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Welcome to Library Management System!");
+        new LibraryLegacyUI();
     }
 }
