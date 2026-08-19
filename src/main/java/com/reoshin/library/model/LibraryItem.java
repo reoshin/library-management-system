@@ -2,7 +2,7 @@ package com.reoshin.library.model;
 
 import com.reoshin.library.exceptions.ItemNotAvailable;
 
-public class LibraryItem implements Loanable {
+public class LibraryItem implements Loanable, LoanObserver {
     private String title;
     private String ID;
     private boolean available;
@@ -54,5 +54,10 @@ public class LibraryItem implements Loanable {
 
     public boolean isAvailable() {
         return this.available;
+    }
+
+    @Override
+    public void onItemLoaned(LibraryItem item, Member member) {
+        loanItem();
     }
 }

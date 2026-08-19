@@ -3,9 +3,9 @@ package com.reoshin.library.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class BookShelf {
-
+public class BookShelf implements LoanObserver {
     private HashMap<String, LibraryItem> items;
+    private ArrayList<LibraryItem> loanedItems;
     
     public void addNewItem(LibraryItem item) {
         // stub
@@ -25,5 +25,10 @@ public class BookShelf {
 
     public LibraryItem findItemByID(String ID) {
         return null;
+    }
+
+    @Override
+    public void onItemLoaned(LibraryItem item, Member member) {
+        loanedItems.add(item);
     }
 }
