@@ -14,8 +14,11 @@ public class Library implements LoanSubject {
     private ArrayList<LoanObserver> observers;
 
 
-    public void newMember(String name) {
-        members.add(new Member(members.size(), name));
+    // EFFECTS: register new member with given String name, then return new registered member.
+    public Member newMember(String name) {
+        Member newMember = new Member(members.size(), name);
+        members.add(newMember);
+        return newMember;
     }
 
     public ArrayList<Member> getMembers() {
