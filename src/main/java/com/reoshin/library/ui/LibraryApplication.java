@@ -122,6 +122,8 @@ public class LibraryApplication extends Application {
     public void openRegisterUI() {
         root.getChildren().clear();
         Label label = new Label("Register");
+        Label newID = new Label("Your new member ID:  " + String.format("%05d", lib.getNumberOfMembers()));
+        Label newID2 = new Label("Notice: ID is assigned by system and cannot be changed.");
         Label label2 = new Label("Please Enter Your Name");
 
         Button submitButton = new Button("Submit");
@@ -138,15 +140,15 @@ public class LibraryApplication extends Application {
                 updateUI();
             }
         });
-        
-        root.getChildren().addAll(label, label2, nameField, submitButton, errorLabel);
+
+        root.getChildren().addAll(label, newID, newID2, label2, nameField, submitButton, errorLabel);
         root.setAlignment(Pos.CENTER);
     }
 
     public void openMemberUI() {
         Label label = new Label("Library System");
 
-        Label welcome = new Label("Hello, " + myUser.getUserName());
+        Label welcome = new Label("Hello, " + myUser.getUserName() + "(ID: " + myUser.getUserID() + ")");
 
         Button button1 = new Button("Edit my profile");
         Button button2 = new Button("Loan");

@@ -25,6 +25,10 @@ public class Library implements LoanSubject {
         return members;
     }
 
+    public int getNumberOfMembers() {
+        return members.size();
+    }
+
     public void loanItem(LibraryItem item, Member m) throws Exception {
         item.loanItem();
         
