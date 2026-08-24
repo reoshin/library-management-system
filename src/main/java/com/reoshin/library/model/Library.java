@@ -10,8 +10,9 @@ import com.reoshin.library.exceptions.NoSuchItemException;
 public class Library implements LoanSubject {
     private LocalDate today = LocalDate.now();
     private ArrayList<Member> members = new ArrayList<>();
-    private BookShelf bookshelf;
-    private ArrayList<LoanObserver> observers;
+    private BookShelf bookshelf = new BookShelf();
+    private ArrayList<LoanObserver> observers = new ArrayList<>();
+    private String location = "<Default Location>";
 
 
     // EFFECTS: register new member with given String name, then return new registered member.
@@ -19,6 +20,22 @@ public class Library implements LoanSubject {
         Member newMember = new Member(members.size(), name);
         members.add(newMember);
         return newMember;
+    }
+
+    public LibraryItem searchByID(String ID) throws NoSuchItemException {
+        return bookshelf.searchByID(ID);
+    }
+
+    public void addItem(LibraryItem item) {
+        this.bookshelf.addItem(item);
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getLocation() {
+        return this.location;
     }
 
     public ArrayList<Member> getMembers() {
@@ -29,10 +46,11 @@ public class Library implements LoanSubject {
         return members.size();
     }
 
-    public void loanItem(LibraryItem item, Member m) throws Exception {
+    public String loanItem(LibraryItem item, Member m) {
         item.loanItem();
         
         notifyLoanObservers(item, m);
+        return item.getTitle() + " by " + item.getAuthor();
     }
 
     @Override
