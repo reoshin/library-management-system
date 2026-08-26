@@ -1,9 +1,9 @@
 package com.reoshin.library.ui;
 
 public enum Mode {
-    GUEST,
+    LOGIN,
     REGISTER,
-    MEMBER,
+    HOME,
     LOAN,
     RETURN,
     SEARCH,

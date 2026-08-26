@@ -27,7 +27,6 @@ public class LibraryApplication extends Application {
     public LibraryApplication() {
         lib.newMember("Admin"); // 00000
         testEnvironment();
-
     }
 
     // This is only for Developer, to test whether the UI works fine or not.
@@ -53,9 +52,9 @@ public class LibraryApplication extends Application {
 
     @Override
     public void start(Stage stage) {
-        updateUI(Mode.GUEST);
+        updateUI(Mode.HOME);
 
-        Scene scene = new Scene(root, 400, 850);
+        Scene scene = new Scene(root, 500, 500);
 
         stage.setTitle("Library System");
         stage.setScene(scene);
@@ -65,23 +64,25 @@ public class LibraryApplication extends Application {
     public void updateUI(Mode mode) {
         root.getChildren().clear();
 
-        if (mode == Mode.GUEST) {
-            openGuestUI();
-        } else if (mode == Mode.MEMBER) {
-            openMemberUI();
+        if (mode == Mode.HOME) {
+            openHomeUI();
+        } else if (mode == Mode.LOGIN) {
+            openLoginUI();
         } else if (mode == Mode.ADMIN) {
             openAdminUI();
         } else if (mode == Mode.LOAN) {
             openLoanUI();
         } else if (mode == Mode.REGISTER) {
             openRegisterUI();
+        } else {
+           // ERROR 
         }
     }
 
     public Boolean login(String userID) {
         try {
             myUser = lib.getMember(userID);
-            updateUI(Mode.MEMBER);
+            updateUI(Mode.HOME);
             return true;
         } catch (Exception e) {
             return false;
@@ -102,24 +103,34 @@ public class LibraryApplication extends Application {
         root.setAlignment(Pos.CENTER);
     }
 
-    public void openGuestUI() {
-        Label label = new Label("Member Login");
-        Label loginMessage = new Label();
+    public void openLoginUI() {
+        Label title = new Label("Member Login");
+
+        Label instruction = new Label("Scan or enter Member ID\n💡Tip - You can manually enter your Member ID");
 
         TextField idField = new TextField();
-        idField.setPromptText("Scan or enter Member ID");
-
-        
-
+        idField.setPromptText("Member ID");
         Button loginButton = new Button("Login");
+        HBox barcodeBox = new HBox(5, idField, loginButton);
 
-        Button registerButton = new Button("Getting Started (New Member)");
-        Label registerMessage = new Label("Not a member? Register Today.");
+        Label scannerLabel = new Label("Scanner Status: ✅Ready to Scan");
+
+        VBox scannerBox = new VBox(barcodeBox, scannerLabel);
+        VBox loginBox = new VBox(7, title, instruction, scannerBox); // loginBox
+
+
+        Label registerMessage = new Label("Not a member?");
+        Button registerButton = new Button("➡️Getting Started (🆕 Register)");
+
+        VBox registerBox = new VBox(registerMessage, registerButton);
+
+        VBox loginUI = new VBox(30, loginBox, registerBox);
+        
 
         loginButton.setOnAction(event -> {
             String userID = idField.getText();
             if (!login(userID)) {
-                loginMessage.setText("Member ID not found.");
+                scannerLabel.setText("🚫 Member ID not found.");
             }
         });
 
@@ -127,13 +138,12 @@ public class LibraryApplication extends Application {
             updateUI(Mode.REGISTER);
         });
 
-        this.root = new VBox(10, label, idField, loginButton, loginMessage, registerMessage, registerButton);
+        root.getChildren().addAll(loginUI);
 
-        this.root.setAlignment(Pos.CENTER);
+        root.setAlignment(Pos.CENTER);
     }
 
     public void openRegisterUI() {
-        root.getChildren().clear();
         Label label = new Label("Register");
         Label newID = new Label("Your new member ID:  " + String.format("%05d", lib.getNumberOfMembers()));
         Label newID2 = new Label("Notice: ID is assigned by system and cannot be changed.");
@@ -150,7 +160,7 @@ public class LibraryApplication extends Application {
                 errorLabel.setText("Your name should include at least one letter (a-Z).");
             } else {
                 this.myUser = lib.newMember(inputName);
-                updateUI(Mode.MEMBER);
+                updateUI(Mode.HOME);
             }
         });
 
@@ -158,28 +168,54 @@ public class LibraryApplication extends Application {
         root.setAlignment(Pos.CENTER);
     }
 
-    public void openMemberUI() {
-        Label label = new Label("Library System");
+    public String getUserName() {
+        if (myUser == null) {
+            return "Guest";
+        } else {
+            return myUser.getUserName() + "(ID: " + myUser.getUserID() + ")";
+        }
+    }
 
-        Label welcome = new Label("Hello, " + myUser.getUserName() + "(ID: " + myUser.getUserID() + ")");
+    public void openHomeUI() {
+        Label title = new Label("Library System");
+        Label location = new Label(lib.getLocation());
+        VBox headerBox = new VBox(title, location); // headerBox
 
-        Button editButton = new Button("Edit my profile");
-        Button loanButton = new Button("Loan");
-        Button returnButton = new Button("Return");
+        Label profileName = new Label("Hello, " + getUserName());
+        Button loginButtonGuest = new Button("⚠️ Login/Register");
+        VBox guestProfileBox = new VBox(profileName, loginButtonGuest); // guestProfileBox
 
-        Label search = new Label("Item Search");
+        Button profileButton = new Button("👤 View my profile");
+        Button logoutButton = new Button("⚠️ Logout");
+        VBox profileBox = new VBox(profileName, profileButton, logoutButton); // profileBox
+    
+        Button loanButton = new Button("📖 Loan");
+        Button returnButton = new Button("↩ Return");
+        HBox buttonGroup1 = new HBox(10, loanButton, returnButton); // buttonGroup1
 
-        Button genreButton = new Button("Genre");
-        Button titleButton = new Button("Title");
-        Button authorButton = new Button("Author");
+        Button searchButton = new Button("🔍 Item Search");
+        Button activityButton = new Button("📣 Recent Activity");
+        HBox buttonGroup2 = new HBox(10, searchButton, activityButton); // buttonGroup2
+
+        VBox actionBox = new VBox(3, buttonGroup1, buttonGroup2);
 
         loanButton.setOnAction(event -> {
             updateUI(Mode.LOAN);
         });
 
-        root.getChildren().addAll(label, welcome, editButton, loanButton, returnButton, search, genreButton, titleButton, authorButton);
+        loginButtonGuest.setOnAction(event -> {
+            updateUI(Mode.LOGIN);
+        });
+
+        if (myUser == null) {
+            root.getChildren().addAll(headerBox, guestProfileBox); // Guest
+        } else {
+            root.getChildren().addAll(headerBox, profileBox, actionBox); // Member
+        }
         root.setAlignment(Pos.CENTER);
     }
+
+    
 
     public void openLoanUI() {
         Label label = new Label("Loan Book/Video Tape(s)");
@@ -195,7 +231,7 @@ public class LibraryApplication extends Application {
         Button closeButton = new Button("Home");
 
         closeButton.setOnAction(event -> {
-            updateUI(Mode.MEMBER);
+            updateUI(Mode.HOME);
         });
 
         readButton.setOnAction(event -> {
@@ -203,7 +239,7 @@ public class LibraryApplication extends Application {
             try {
                 instruction.setText("Your Item: " + lib.loanItem(lib.searchByID(barcode), myUser));
                 label.setText("Loan Item Confirmation");
-                instruction2.setText("Thanks for being our valueable member, " + myUser.getUserName() + "(ID: " + myUser.getUserID() + ")");
+                instruction2.setText("Thanks for being our valueable member, " + getUserName());
                 scannerLabel.setText("Scanner Status: Idle");
                 root.getChildren().add(closeButton);
                 root.getChildren().remove(scannerBox);
