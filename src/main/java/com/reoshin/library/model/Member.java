@@ -33,5 +33,11 @@ public class Member implements LoanObserver {
         loanList.add(item);
     }
 
+    @Override
+    public void onItemReturned(LibraryItem item, Member member) {
+        if (loanList.contains(item)) {
+            loanList.remove(item);
+        }
+    }
     
 }

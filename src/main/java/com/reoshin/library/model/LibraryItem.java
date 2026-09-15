@@ -60,4 +60,9 @@ public class LibraryItem implements Loanable, LoanObserver {
     public void onItemLoaned(LibraryItem item, Member member) {
         loanItem();
     }
+
+    @Override
+    public void onItemReturned(LibraryItem item, Member member) {
+        returnItem();
+    }
 }

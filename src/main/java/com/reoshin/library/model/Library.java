@@ -53,6 +53,13 @@ public class Library implements LoanSubject {
         return item.getTitle() + " by " + item.getAuthor();
     }
 
+    public String returnItem(LibraryItem item, Member m) {
+        item.returnItem();
+
+        notifyReturnObservers(item, m);
+        return item.getTitle() + " by " + item.getAuthor();
+    }
+
     @Override
     public void addObserver(LoanObserver o) {
         observers.add(o);
@@ -67,6 +74,13 @@ public class Library implements LoanSubject {
     public void notifyLoanObservers(LibraryItem item, Member member) {
         for (LoanObserver observer : observers) {
             observer.onItemLoaned(item, member);
+        }
+    }
+
+    @Override
+    public void notifyReturnObservers(LibraryItem item, Member member) {
+        for (LoanObserver observer : observers) {
+            observer.onItemReturned(item, member);
         }
     }
 

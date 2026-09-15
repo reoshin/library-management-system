@@ -41,4 +41,11 @@ public class BookShelf implements LoanObserver {
     public void onItemLoaned(LibraryItem item, Member member) {
         loanedItems.add(item);
     }
+
+    @Override
+    public void onItemReturned(LibraryItem item, Member member) {
+        if (loanedItems.contains(item)) {
+            loanedItems.remove(item);
+        }
+    }
 }
