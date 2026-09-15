@@ -1,5 +1,6 @@
 package com.reoshin.library.ui;
 
+import com.reoshin.library.exceptions.ItemNotAvailable;
 import com.reoshin.library.exceptions.NoSuchItemException;
 import com.reoshin.library.model.Book;
 import com.reoshin.library.model.Category;
@@ -55,6 +56,7 @@ public class LibraryApplication extends Application {
         updateUI(Mode.HOME);
 
         Scene scene = new Scene(root, 500, 500);
+        scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
 
         stage.setTitle("Library System");
         stage.setScene(scene);
@@ -74,8 +76,10 @@ public class LibraryApplication extends Application {
             openLoanUI();
         } else if (mode == Mode.REGISTER) {
             openRegisterUI();
+        } else if (mode == Mode.RETURN) {
+           openReturnUI();
         } else {
-           // ERROR 
+            openErrorUI();
         }
     }
 
@@ -91,44 +95,64 @@ public class LibraryApplication extends Application {
 
     public void openAdminUI() {
         Label label = new Label("Library Management System");
-
         Label welcome = new Label("Admin Mode");
-        Label welcome2 = new Label("Your current location is " + lib.getLocation());
+
+        Label welcome2 = new Label(
+            "Your current location is " + lib.getLocation()
+        );
+
         Button button1 = new Button("Add Book(s)");
         Button button2 = new Button("Manage My Member(s)");
         Button button3 = new Button("Change my Location");
 
 
-        root.getChildren().addAll(label, welcome,welcome2, button1, button2, button3);
+        Button homeButton = new Button("Home");
+
+        homeButton.setOnAction(event -> {
+            this.myUser = null;
+            updateUI(Mode.HOME);
+        });
+
+
+        root.getChildren().addAll(
+            label,
+            welcome,
+            welcome2,
+            button1,
+            button2,
+            button3,
+            homeButton
+        );
+
         root.setAlignment(Pos.CENTER);
     }
 
     public void openLoginUI() {
         Label title = new Label("Member Login");
-
-        Label instruction = new Label("Scan or enter Member ID\n💡Tip - You can manually enter your Member ID");
+        Label instruction = new Label(
+            "Scan or enter Member ID\n💡Tip - You can manually enter your Member ID");
 
         TextField idField = new TextField();
         idField.setPromptText("Member ID");
+
         Button loginButton = new Button("Login");
         HBox barcodeBox = new HBox(5, idField, loginButton);
-
         Label scannerLabel = new Label("Scanner Status: ✅Ready to Scan");
 
         VBox scannerBox = new VBox(barcodeBox, scannerLabel);
-        VBox loginBox = new VBox(7, title, instruction, scannerBox); // loginBox
+        VBox loginBox = new VBox(7, title, instruction, scannerBox);
 
 
         Label registerMessage = new Label("Not a member?");
-        Button registerButton = new Button("➡️Getting Started (🆕 Register)");
-
+        Button registerButton = new Button("➡️ Getting Started (🆕 Register)");
         VBox registerBox = new VBox(registerMessage, registerButton);
 
         VBox loginUI = new VBox(30, loginBox, registerBox);
-        
+
 
         loginButton.setOnAction(event -> {
             String userID = idField.getText();
+
             if (!login(userID)) {
                 scannerLabel.setText("🚫 Member ID not found.");
             }
@@ -138,33 +162,71 @@ public class LibraryApplication extends Application {
             updateUI(Mode.REGISTER);
         });
 
-        root.getChildren().addAll(loginUI);
+
+        Button homeButton = new Button("Home");
+        homeButton.setOnAction(event -> {
+            updateUI(Mode.HOME);
+        });
+
+
+        root.getChildren().addAll(loginUI, homeButton);
 
         root.setAlignment(Pos.CENTER);
+
     }
 
     public void openRegisterUI() {
         Label label = new Label("Register");
-        Label newID = new Label("Your new member ID:  " + String.format("%05d", lib.getNumberOfMembers()));
-        Label newID2 = new Label("Notice: ID is assigned by system and cannot be changed.");
+        Label newID = new Label(
+            "Your new member ID:  " 
+            + String.format("%05d", lib.getNumberOfMembers())
+        );
+
+        Label newID2 = new Label(
+            "Notice: ID is assigned by system and cannot be changed."
+        );
+
         Label label2 = new Label("Please Enter Your Name");
 
-        Button submitButton = new Button("Submit");
         TextField nameField = new TextField();
         nameField.setPromptText("Your First name and Last name");
+
+
+        Button submitButton = new Button("Submit");
+
         Label errorLabel = new Label();
 
         submitButton.setOnAction(event -> {
             String inputName = nameField.getText();
+
             if (inputName.equals("Name") || inputName.equals("")) {
-                errorLabel.setText("Your name should include at least one letter (a-Z).");
+                errorLabel.setText(
+                    "Your name should include at least one letter (a-Z)."
+                );
             } else {
                 this.myUser = lib.newMember(inputName);
                 updateUI(Mode.HOME);
             }
         });
 
-        root.getChildren().addAll(label, newID, newID2, label2, nameField, submitButton, errorLabel);
+
+        Button homeButton = new Button("Home");
+        homeButton.setOnAction(event -> {
+            updateUI(Mode.HOME);
+        });
+
+
+        root.getChildren().addAll(
+            label,
+            newID,
+            newID2,
+            label2,
+            nameField,
+            submitButton,
+            errorLabel,
+            homeButton
+        );
+
         root.setAlignment(Pos.CENTER);
     }
 
@@ -179,32 +241,57 @@ public class LibraryApplication extends Application {
     public void openHomeUI() {
         Label title = new Label("Library System");
         Label location = new Label(lib.getLocation());
-        VBox headerBox = new VBox(title, location); // headerBox
+
+        VBox headerBox = new VBox(title, location);
 
         Label profileName = new Label("Hello, " + getUserName());
         Button loginButtonGuest = new Button("⚠️ Login/Register");
-        VBox guestProfileBox = new VBox(profileName, loginButtonGuest); // guestProfileBox
 
+        VBox guestProfileBox = new VBox(profileName, loginButtonGuest);
         Button profileButton = new Button("👤 View my profile");
+
         Button logoutButton = new Button("⚠️ Logout");
-        VBox profileBox = new VBox(profileName, profileButton, logoutButton); // profileBox
-    
+        VBox profileBox = new VBox(profileName, profileButton, logoutButton);
+
         Button loanButton = new Button("📖 Loan");
         Button returnButton = new Button("↩ Return");
-        HBox buttonGroup1 = new HBox(10, loanButton, returnButton); // buttonGroup1
+        HBox buttonGroup1 = new HBox(10, loanButton, returnButton);
+
 
         Button searchButton = new Button("🔍 Item Search");
         Button activityButton = new Button("📣 Recent Activity");
-        HBox buttonGroup2 = new HBox(10, searchButton, activityButton); // buttonGroup2
+
+        HBox buttonGroup2 = new HBox(10, searchButton, activityButton);
 
         VBox actionBox = new VBox(3, buttonGroup1, buttonGroup2);
-
         loanButton.setOnAction(event -> {
             updateUI(Mode.LOAN);
         });
 
         loginButtonGuest.setOnAction(event -> {
             updateUI(Mode.LOGIN);
+        });
+
+        returnButton.setOnAction(event -> {
+            updateUI(Mode.RETURN);
+        });
+
+        searchButton.setOnAction(event -> {
+            updateUI(Mode.SEARCH);
+        });
+
+        activityButton.setOnAction(event -> {
+            updateUI(Mode.ACTIVITY);
+        });
+
+        profileButton.setOnAction(event -> {
+            updateUI(Mode.PROFILE);
+        });
+
+
+        logoutButton.setOnAction(event -> {
+            this.myUser = null;
+            updateUI(Mode.HOME);
         });
 
         if (myUser == null) {
@@ -215,45 +302,243 @@ public class LibraryApplication extends Application {
         root.setAlignment(Pos.CENTER);
     }
 
-    
-
     public void openLoanUI() {
         Label label = new Label("Loan Book/Video Tape(s)");
-        Label instruction = new Label("Please scan or manually type the barcode");
-        Label instruction2 = new Label("Tip: If the scanner doesn't work, try to type 8-digit numbers");
+        Label instruction = new Label(
+            "Please scan or manually type the barcode"
+        );
+
+        Label instruction2 = new Label(
+            "Tip: If the scanner doesn't work, try to type 8-digit numbers"
+        );
+
         TextField barcodeScanner = new TextField();
-        barcodeScanner.setPromptText("Barcode number is usually placed on the back of the book.");
-        Label scannerLabel = new Label("Scanner Status: Ready to scan");
+        barcodeScanner.setPromptText(
+            "Barcode number is usually placed on the back of the book."
+        );
+
+        Label scannerLabel = new Label(
+            "Scanner Status: Ready to scan"
+        );
+
         Button readButton = new Button("Read");
-        VBox barcodeScannerBox = new VBox(barcodeScanner, scannerLabel);
 
-        HBox scannerBox = new HBox(barcodeScannerBox, readButton); // all
-        Button closeButton = new Button("Home");
+        VBox barcodeScannerBox = new VBox(
+            barcodeScanner,
+            scannerLabel
+        );
 
-        closeButton.setOnAction(event -> {
+        HBox scannerBox = new HBox(
+            barcodeScannerBox,
+            readButton
+        );
+
+        Button homeButton = new Button("Home");
+        homeButton.setOnAction(event -> {
             updateUI(Mode.HOME);
         });
 
+
         readButton.setOnAction(event -> {
             String barcode = barcodeScanner.getText();
+
             try {
-                instruction.setText("Your Item: " + lib.loanItem(lib.searchByID(barcode), myUser));
+                instruction.setText(
+                    "Your Item: "
+                    + lib.loanItem(
+                        lib.searchByID(barcode),
+                        myUser
+                    )
+                );
+
                 label.setText("Loan Item Confirmation");
-                instruction2.setText("Thanks for being our valueable member, " + getUserName());
+
+                instruction2.setText(
+                    "Thanks for being our valueable member, "
+                    + getUserName()
+                );
+
                 scannerLabel.setText("Scanner Status: Idle");
-                root.getChildren().add(closeButton);
+
                 root.getChildren().remove(scannerBox);
+
             } catch (NoSuchItemException e) {
-                scannerLabel.setText("Scanner Status: Item not found. To loan this item, ask administar to register to the system.");
-                
-                PauseTransition delay = new PauseTransition(Duration.seconds(3));
-                delay.setOnFinished(event2 -> scannerLabel.setText("Scanner Status: Ready to Scan"));
+
+                scannerLabel.setText(
+                    "Scanner Status: Item not found. Please ask administar."
+                );
+
+                PauseTransition delay =
+                    new PauseTransition(Duration.seconds(3));
+
+                delay.setOnFinished(event2 ->
+                    scannerLabel.setText(
+                        "Scanner Status: Ready to Scan"
+                    )
+                );
+
+                delay.play();
+
+            } catch (ItemNotAvailable e) {
+
+                scannerLabel.setText(
+                    "Scanner Status: Sorry, this item is not available."
+                );
+
+                PauseTransition delay =
+                    new PauseTransition(Duration.seconds(3));
+                delay.setOnFinished(event3 ->
+                    scannerLabel.setText(
+                        "Scanner Status: Ready to Scan"
+                    )
+                );
                 delay.play();
             }
         });
 
 
-        root.getChildren().addAll(label, instruction, instruction2, scannerBox);
+        root.getChildren().addAll(
+            label,
+            instruction,
+            instruction2,
+            scannerBox,
+            homeButton
+        );
+
         root.setAlignment(Pos.CENTER);
     }
+
+    public void openReturnUI() {
+        Label heading = new Label("Return");
+        Label instruction = new Label(
+            "Please scan or manually type the barcode"
+        );
+
+        Label instruction2 = new Label(
+            "Tip: If the scanner doesn't work, try to type 8-digit numbers"
+        );
+
+        TextField barcodeScanner = new TextField();
+        barcodeScanner.setPromptText(
+            "Barcode number is usually placed on the back of the book."
+        );
+
+        Label scannerLabel = new Label(
+            "Scanner Status: Ready to scan"
+        );
+
+        Button readButton = new Button("Read");
+        VBox barcodeScannerBox = new VBox(
+            barcodeScanner,
+            scannerLabel
+        );
+
+        HBox scannerBox = new HBox(
+            barcodeScannerBox,
+            readButton
+        );
+
+        Button homeButton = new Button("Home");
+        homeButton.setOnAction(event -> {
+            updateUI(Mode.HOME);
+        });
+
+
+        readButton.setOnAction(event -> {
+            String barcode = barcodeScanner.getText();
+
+            try {
+                instruction.setText(
+                    "Your Item: "
+                    + lib.returnItem(
+                        lib.searchByID(barcode),
+                        myUser
+                    )
+                );
+
+                heading.setText("Return Item Confirmation");
+
+                instruction2.setText(
+                    "Thanks for being our valueable member, "
+                    + getUserName()
+                );
+
+                scannerLabel.setText("Scanner Status: Idle");
+
+                root.getChildren().remove(scannerBox);
+
+            } catch (NoSuchItemException e) {
+
+                scannerLabel.setText(
+                    "Scanner Status: Item not found. Please ask administar."
+                );
+
+                PauseTransition delay =
+                    new PauseTransition(Duration.seconds(3));
+
+                delay.setOnFinished(event2 ->
+                    scannerLabel.setText(
+                        "Scanner Status: Ready to Scan"
+                    )
+                );
+
+                delay.play();
+
+            } catch (ItemNotAvailable e) {
+
+                scannerLabel.setText(
+                    "Scanner Status: This item is available to loan."
+                );
+
+                PauseTransition delay =
+                    new PauseTransition(Duration.seconds(3));
+
+                delay.setOnFinished(event3 ->
+                    scannerLabel.setText(
+                        "Scanner Status: Ready to Scan"
+                    )
+                );
+
+                delay.play();
+            }
+        });
+
+
+        root.getChildren().addAll(
+            heading,
+            instruction,
+            instruction2,
+            scannerBox,
+            homeButton
+        );
+
+        root.setAlignment(Pos.CENTER);
+    }
+
+    public void openErrorUI() {
+        Label icon = new Label("⚠️");
+        Label text = new Label(
+            "Error: the page you're trying to reach is not found"
+        );
+
+        Label errorCode = new Label("(Code: 0X0X0X)");
+
+
+        Button homeButton = new Button("Home");
+        homeButton.setOnAction(event -> {
+            updateUI(Mode.HOME);
+        });
+
+
+        root.getChildren().addAll(
+            icon,
+            text,
+            errorCode,
+            homeButton
+        );
+
+        root.setAlignment(Pos.CENTER);
+    }
+
+
 }

@@ -1,0 +1,12 @@
+.root {
+    -fx-padding: 30px;
+}
+
+.button {
+    -fx-padding: 10px 20px;
+    -fx-font-size: 14px;
+}
+
+.button:hover {
+    -fx-opacity: 0.8;
+}

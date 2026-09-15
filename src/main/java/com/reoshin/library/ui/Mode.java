@@ -7,5 +7,7 @@ public enum Mode {
     LOAN,
     RETURN,
     SEARCH,
-    ADMIN
+    ADMIN,
+    ACTIVITY,
+    PROFILE
 }
